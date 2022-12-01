@@ -1,1 +1,3 @@
-def main : IO Unit := IO.println "★★★★★★★★★★★★"
+import Advent
+
+def main : IO Unit := day1
