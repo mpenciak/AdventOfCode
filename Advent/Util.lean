@@ -34,6 +34,11 @@ def Array.split' (p : α → Bool) (a : Array α) : Array (Array α) := Id.run d
     ans':= ans'.push x
   return ans
 
+def String.split' (s : String) (p : Char → Bool) : String × String := 
+  let s₁ := s.takeWhile (not ∘ p)
+  let s₂ := s.takeRight (s.length - s₁.length - 1)
+  (s₁, s₂)
+
 def Char.toDigit (c : Char) : Nat := c.toNat - 48
 
 def List.sum {α : Type _} [Add α] [OfNat α (nat_lit 0)] (ns : List α) : α := 
