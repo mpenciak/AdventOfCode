@@ -1,10 +1,10 @@
 import Advent.Util
 
 inductive RPS | rock | paper | scissors
-deriving BEq, Repr
+deriving BEq, Inhabited
 
 inductive GameResult | pOne | pTwo | draw
-deriving Repr
+deriving Inhabited
 
 def runGame : RPS → RPS → GameResult
   | .rock    , .scissors => .pOne
@@ -28,13 +28,13 @@ def String.toMove : String → RPS
   | "A" | "X" => .rock
   | "B" | "Y" => .paper
   | "C" | "Z" => .scissors
-  | _ => .rock -- dummy stuff because I'm lazy
+  | _ => panic! "Unexpected input"
 
 def String.toResult : String → GameResult
   | "X" => .pOne
   | "Y" => .draw
   | "Z" => .pTwo
-  | _ => .pOne -- dummy stuff because I'm lazy
+  | _ => panic! "Unexpected input"
 
 def figureMove : RPS → GameResult → RPS
   | mov, .draw => mov
@@ -58,7 +58,6 @@ def day2 : IO Unit := do
                                  |>.map (fun (m₁, res) => (figureMove m₁ res, res))
   let answer2 := parsedInput2 |>.map (fun (mov, res) => scoreGame mov res)
                               |>.sum
-  -- dbg_trace parsedInput2.map (reprStr)
   printAnswer (day := 2) answer1 answer2
 
 #eval day2
