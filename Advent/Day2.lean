@@ -46,7 +46,7 @@ def figureMove : RPS → GameResult → RPS
   | .scissors, .pTwo => .rock 
 
 def day2 : IO Unit := do
-  let inputLines ← getInputLines (test := false) 2
+  let inputLines ← getInputLines (test := false) (day := 2)
   let parsedInput1  := inputLines |>.map (fun s => s.split' (· == ' '))
                                   |>.map (fun (s₁, s₂) => (s₁.toMove, s₂.toMove))
                                   |>.map (fun (m₁, m₂) => (m₂, runGame m₁ m₂))

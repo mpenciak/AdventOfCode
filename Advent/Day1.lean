@@ -1,7 +1,7 @@
 import Advent.Util
 
 def day1 : IO Unit := do
-  let inputLines ← getInputLines (test := false) 1
+  let inputLines ← getInputLines (test := false) (day := 1)
   let sortedCalories := inputLines |>.split' (· == "") 
                                    |>.map (·.map (fun s => parseNum.run s))
                                    |>.map cleanExcept
