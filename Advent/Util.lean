@@ -32,6 +32,7 @@ def Array.split' (p : α → Bool) (a : Array α) : Array (Array α) := Id.run d
       ans := ans.push ans'
       ans':= #[] else
     ans':= ans'.push x
+  ans := ans.push ans'
   return ans
 
 def String.split' (s : String) (p : Char → Bool) : String × String := 
