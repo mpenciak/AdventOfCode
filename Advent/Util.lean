@@ -54,11 +54,13 @@ def cleanExcept {ε α : Type _} (ear : Array (Except ε α)) : Array α :=
     | .ok a    => as.push a
     | .error _ => as
 
+def String.filter (p : Char → Bool) (s : String) : String := ⟨s.data.filter p⟩
+
 end data_utils
 
 section parser_utils 
 
-open Lean Parsec
+namespace Lean.Parsec
 
 def parseDigit : Parsec Nat := attempt do
   let n ← digit
@@ -67,4 +69,16 @@ def parseDigit : Parsec Nat := attempt do
 def parseNum : Parsec Nat := 
   many1 parseDigit >>= fun ns => pure $ ns.foldl (fun n m => 10 * n + m) 0
 
+def between (b e : Char) (p : Parsec α) : Parsec α := 
+  skipChar b *> p >>= fun c => skipChar e *> pure c
+
+@[specialize]
+def repeatCore (p : Parsec α) (acc : Array α) : Nat → (Parsec $ Array α)
+  | 0     => pure acc
+  | n + 1 => (do repeatCore p (acc.push $ ← p) n)
+
+@[inline]
+def repeat' (p : Parsec α) (n : Nat) := repeatCore p #[] n
+
+end Lean.Parsec
 end parser_utils
