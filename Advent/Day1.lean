@@ -1,5 +1,6 @@
 import Advent.Util
 
+open Lean Parsec in
 def day1 : IO Unit := do
   let inputLines ← getInputLines (test := false) (day := 1)
   let sortedCalories := inputLines |>.split' (· == "") 
