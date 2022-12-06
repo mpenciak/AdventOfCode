@@ -73,8 +73,6 @@ def day5 : IO Unit := do
   let moves := moveLines |>.map (parseMove.run) |> cleanExcept
   let answer1 := applyMoves applyMove1 moves initState |>.foldl (fun acc s => s.head! :: acc ) (init := []) 
   let answer2 := applyMoves applyMove2 moves initState |>.foldl (fun acc s => s.head! :: acc ) (init := []) 
-  -- dbg_trace moves
-  -- dbg_trace answer1
   printAnswer (day := 5) (String.mk answer1.reverse) (String.mk answer2.reverse)
 
 #eval day5
