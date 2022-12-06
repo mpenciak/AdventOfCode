@@ -15,10 +15,12 @@ def printAnswer [ToString α] (day : Nat) (ans₁ ans₂ : α) : IO Unit :=
   println "==================" *>
   println "Solution 1" *> 
   println "----------" *>
-  println ans₁ *> 
+  println ans₁ *>
+  println "" *>
   println "Solution 2" *> 
   println "----------" *> 
-  println ans₂
+  println ans₂ *>
+  println "=================="
 
 end IO_utils
 
