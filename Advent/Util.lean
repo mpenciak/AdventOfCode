@@ -82,5 +82,7 @@ def repeatCore (p : Parsec α) (acc : Array α) : Nat → (Parsec $ Array α)
 @[inline]
 def repeat' (p : Parsec α) (n : Nat) := repeatCore p #[] n
 
+def parseName : Parsec String := (many anyChar) >>= fun cs => pure $ ⟨cs.toList⟩
+
 end Lean.Parsec
 end parser_utils
