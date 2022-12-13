@@ -58,6 +58,18 @@ def cleanExcept {ε α : Type _} (ear : Array (Except ε α)) : Array α :=
 
 def String.filter (p : Char → Bool) (s : String) : String := ⟨s.data.filter p⟩
 
+def Sum.isRight : α ⊕ β → Bool
+  | .inl _ => false
+  | .inr _ => true
+
+def Sum.projectRight [Inhabited β] : α ⊕ β → β
+  | .inl _ => default
+  | .inr x => x
+
+def Sum.projectLeft [Inhabited α] : α ⊕ β → α 
+  | .inr _ => default
+  | .inl x => x
+
 end data_utils
 
 section parser_utils 

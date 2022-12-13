@@ -57,6 +57,8 @@ end parsing
 
 section logic
 
+namespace Day7
+
 open Std
 
 abbrev DirPath := String
@@ -66,7 +68,7 @@ abbrev Context := Array (Cmd ⊕ DirItem)
 structure State where
   idx : Nat
   root : List DirPath
-  dirSizes : HashMap DirPath Nat
+  dirSizes : HashMap (List DirPath) Nat
 deriving Inhabited
 
 def init : State := default
@@ -89,25 +91,81 @@ def incIdx (inc : Nat) : BuildM Unit := do
   let old ← idx
   modify (fun st => {st with idx := old + inc})
 
-def getLines : BuildM (List DirItem) := do
-  let mut answer := []
+def getLines : BuildM (Array DirItem) := do
   let lines ← readIdx
-  for line in lines do
-    match line with
-    | .inr item => answer := answer.cons item
-    | .inl _ => break
-  incIdx (answer.length)
-  return answer
+  let gotLines := lines.takeWhile (·.isRight) |>.map Sum.projectRight
+  incIdx (gotLines.size)
+  return gotLines
+
+def readCommand : BuildM $ Option Cmd := do
+  let pos ← idx
+  let ctx ← read
+  match ctx[pos]? with
+  | .some (.inl cmd) => return .some cmd
+  | .some (.inr _) => panic! "Uh oh! This shouldn't happen"
+  | .none => return .none
+
+def getParents (currentDir : List DirPath) : List (List DirPath) :=
+  let rec getParentsAux (acc : List (List DirPath)) (currentDir : List DirPath) : List (List DirPath) :=
+    match currentDir with
+    | [] => acc
+    | _ :: xs => getParentsAux (xs :: acc) xs
+  getParentsAux [currentDir] currentDir
+
+partial def updateParents (childSize : Nat) : BuildM Unit := do
+  let currentDir := (← get).root
+  for parent in getParents currentDir do
+    modify fun st => 
+    { st with
+      dirSizes := st.dirSizes.insert parent (st.dirSizes.find! parent + childSize)
+    }
+
+partial def buildTree : BuildM Unit := do
+  let cmd? ← readCommand
+  incIdx 1
+  match cmd? with
+  | .some $ .cd dirName => 
+    modify fun st => {
+      st with
+      root := dirName :: st.root
+    }
+    buildTree
+  | .some $ .cdUp => 
+    modify fun st => {
+      st with
+      root := st.root.tail
+    }
+    buildTree
+  | .some .ls =>
+    let items ← getLines
+    let mut totalSize := 0
+    for item in items do
+      match item with
+      | .dir _ => pure ()
+      | .file _ size => 
+        totalSize := totalSize + size
+    updateParents totalSize
+    buildTree
+  | .none => pure ()
   
-def buildTree : BuildM Unit := do
-  sorry
-  
+end Day7
 end logic
 
-def day7 : IO Unit := do
-  let inputLines ← getInputLines (test := true) (day := 7)
-  dbg_trace parseInput inputLines
+open Day7
 
-  printAnswer (day := 7) 0 0
+def day7 : IO Unit := do
+  let inputLines ← getInputLines (test := false) (day := 7)
+  let parsedInputs := parseInput inputLines
+  let dirSizes := buildTree.run parsedInputs |>.run default |>.snd |>.dirSizes
+  let answer1 := dirSizes |>.filter (fun _ size => size ≤ 100000)
+                          |>.fold (fun acc _ c => acc + c) (init := 0)
+  let unusedSpace := 70000000 - dirSizes.find! []
+  let spaceNeeded := 30000000 - unusedSpace
+  let answer2 := dirSizes |>.filter (fun _ size => size ≥ spaceNeeded)
+                          |>.toArray
+                          |>.qsort (fun (_, n) (_, m) => n < m)
+                          |>.get! 0
+                          |>.snd
+  printAnswer (day := 7) answer1 answer2
 
 #eval day7
