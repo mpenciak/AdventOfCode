@@ -71,7 +71,11 @@ structure State where
   dirSizes : HashMap (List DirPath) Nat
 deriving Inhabited
 
-def init : State := default
+def init : State := {
+  idx := 0
+  root := []
+  dirSizes := .empty |>.insert [] 0
+}
 
 abbrev BuildM := ReaderT Context $ StateM State
 
@@ -128,6 +132,7 @@ partial def buildTree : BuildM Unit := do
     modify fun st => {
       st with
       root := dirName :: st.root
+      dirSizes := st.dirSizes.insert (dirName :: st.root) 0
     }
     buildTree
   | .some $ .cdUp => 
