@@ -10,7 +10,7 @@ def inputPath (test : Bool) (day : Nat) : FilePath :=
 def getInputLines (test : Bool) (day : Nat) : IO (Array String) := IO.FS.lines $ inputPath test day
 
 open IO in
-def printAnswer [ToString α] (day : Nat) (ans₁ ans₂ : α) : IO Unit :=
+def printAnswer [ToString α] [ToString β] (day : Nat) (ans₁ : α) (ans₂ : β) : IO Unit :=
   println s!"Day {day} Answers:" *>
   println "==================" *>
   println "Solution 1" *> 
@@ -82,6 +82,9 @@ def parseDigit : Parsec Nat := attempt do
 
 def parseNum : Parsec Nat := 
   many1 parseDigit >>= fun ns => pure $ ns.foldl (fun n m => 10 * n + m) 0
+
+def parseInt : Parsec Int :=
+  (skipChar '-' *> parseNum >>= fun n => pure $ -(n : Int)) <|> (parseNum >>= fun n => pure (n : Int))
 
 def between (b e : Char) (p : Parsec α) : Parsec α := 
   skipChar b *> p >>= fun c => skipChar e *> pure c
